@@ -1,113 +1,74 @@
 openapi: "3.0.1"
 info:
-  title: "PostNord Shipment API"
-  description: "PostNord Shipment Tracking API - Demo using Gravitee Echo backend"
+  title: "OAS Spec Validation"
+  description: "OpenAPI Specification for the Gravitee Echo API - used to demonstrate OAS validation and CI/CD promotion workflows"
   version: "1.0.0"
-  contact:
-    name: "PostNord API Team"
-    email: "api@postnord.com"
 
 servers:
-  - url: "https://api.gravitee.io/echo"
-    description: "Gravitee Echo - Demo backend"
+  - url: "https://api.gravitee.io"
+    description: "Gravitee Public Echo API"
 
 paths:
-  /rest/shipment/v1/tracking:
+  /echo:
     get:
-      summary: "Track a shipment"
-      description: "Returns tracking information for a given shipment ID"
-      operationId: "trackShipment"
+      summary: "Echo request details"
+      description: "Returns all headers, query parameters and body size from the incoming request. Useful for validating gateway behaviour."
+      operationId: "echoGet"
       parameters:
-        - name: "shipmentId"
-          in: "query"
-          required: true
-          description: "The unique shipment identifier"
-          schema:
-            type: "string"
-            example: "PN123456789SE"
-        - name: "locale"
+        - name: "example_param"
           in: "query"
           required: false
-          description: "Language preference for the response"
+          description: "Any query parameter - will be reflected back in the response"
           schema:
             type: "string"
-            example: "en"
+            example: "hello"
       responses:
         "200":
-          description: "Successful tracking response"
+          description: "Echo response containing all request details"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TrackingResponse"
-        "404":
-          description: "Shipment not found"
-        "401":
-          description: "Unauthorized - missing or invalid API key"
+                $ref: "#/components/schemas/EchoResponse"
 
-  /rest/shipment/v1/tracking/{shipmentId}:
-    get:
-      summary: "Track a shipment by path ID"
-      description: "Returns tracking information using shipment ID as a path parameter"
-      operationId: "trackShipmentById"
-      parameters:
-        - name: "shipmentId"
-          in: "path"
-          required: true
-          description: "The unique shipment identifier"
-          schema:
-            type: "string"
-            example: "PN123456789SE"
+    post:
+      summary: "Echo request with body"
+      description: "Returns headers, query params and body size for a POST request"
+      operationId: "echoPost"
+      requestBody:
+        description: "Any payload - will be reflected back"
+        content:
+          application/json:
+            schema:
+              type: "object"
       responses:
         "200":
-          description: "Successful tracking response"
+          description: "Echo response containing all request details"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TrackingResponse"
-        "404":
-          description: "Shipment not found"
-        "401":
-          description: "Unauthorized - missing or invalid API key"
+                $ref: "#/components/schemas/EchoResponse"
 
 components:
   schemas:
-    TrackingResponse:
+    EchoResponse:
       type: "object"
       properties:
-        shipmentId:
-          type: "string"
-          example: "PN123456789SE"
-        status:
-          type: "string"
-          enum: ["IN_TRANSIT", "DELIVERED", "OUT_FOR_DELIVERY", "PENDING"]
-          example: "IN_TRANSIT"
-        estimatedDelivery:
-          type: "string"
-          format: "date-time"
-          example: "2025-03-10T14:00:00Z"
-        events:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/TrackingEvent"
-
-    TrackingEvent:
-      type: "object"
-      properties:
-        timestamp:
-          type: "string"
-          format: "date-time"
-        location:
-          type: "string"
-          example: "Stockholm Distribution Centre"
-        description:
-          type: "string"
-          example: "Parcel arrived at sorting facility"
-
-  securitySchemes:
-    ApiKeyAuth:
-      type: "apiKey"
-      in: "header"
-      name: "X-Gravitee-Api-Key"
-
-security:
-  - ApiKeyAuth: []
+        headers:
+          type: "object"
+          description: "All request headers received by the gateway"
+          additionalProperties:
+            type: "string"
+          example:
+            Host: "api.gravitee.io"
+            X-Gravitee-Request-Id: "8fe6a2e0-9967-481c-a6a2-e09967c81ced"
+            X-Gravitee-Transaction-Id: "8fe6a2e0-9967-481c-a6a2-e09967c81ced"
+            User-Agent: "Mozilla/5.0"
+        query_params:
+          type: "object"
+          description: "All query parameters passed in the request"
+          additionalProperties:
+            type: "string"
+        bodySize:
+          type: "integer"
+          description: "Size of the request body in bytes"
+          example: 0
