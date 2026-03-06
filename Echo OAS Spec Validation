@@ -1,0 +1,113 @@
+openapi: "3.0.1"
+info:
+  title: "PostNord Shipment API"
+  description: "PostNord Shipment Tracking API - Demo using Gravitee Echo backend"
+  version: "1.0.0"
+  contact:
+    name: "PostNord API Team"
+    email: "api@postnord.com"
+
+servers:
+  - url: "https://api.gravitee.io/echo"
+    description: "Gravitee Echo - Demo backend"
+
+paths:
+  /rest/shipment/v1/tracking:
+    get:
+      summary: "Track a shipment"
+      description: "Returns tracking information for a given shipment ID"
+      operationId: "trackShipment"
+      parameters:
+        - name: "shipmentId"
+          in: "query"
+          required: true
+          description: "The unique shipment identifier"
+          schema:
+            type: "string"
+            example: "PN123456789SE"
+        - name: "locale"
+          in: "query"
+          required: false
+          description: "Language preference for the response"
+          schema:
+            type: "string"
+            example: "en"
+      responses:
+        "200":
+          description: "Successful tracking response"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackingResponse"
+        "404":
+          description: "Shipment not found"
+        "401":
+          description: "Unauthorized - missing or invalid API key"
+
+  /rest/shipment/v1/tracking/{shipmentId}:
+    get:
+      summary: "Track a shipment by path ID"
+      description: "Returns tracking information using shipment ID as a path parameter"
+      operationId: "trackShipmentById"
+      parameters:
+        - name: "shipmentId"
+          in: "path"
+          required: true
+          description: "The unique shipment identifier"
+          schema:
+            type: "string"
+            example: "PN123456789SE"
+      responses:
+        "200":
+          description: "Successful tracking response"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackingResponse"
+        "404":
+          description: "Shipment not found"
+        "401":
+          description: "Unauthorized - missing or invalid API key"
+
+components:
+  schemas:
+    TrackingResponse:
+      type: "object"
+      properties:
+        shipmentId:
+          type: "string"
+          example: "PN123456789SE"
+        status:
+          type: "string"
+          enum: ["IN_TRANSIT", "DELIVERED", "OUT_FOR_DELIVERY", "PENDING"]
+          example: "IN_TRANSIT"
+        estimatedDelivery:
+          type: "string"
+          format: "date-time"
+          example: "2025-03-10T14:00:00Z"
+        events:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TrackingEvent"
+
+    TrackingEvent:
+      type: "object"
+      properties:
+        timestamp:
+          type: "string"
+          format: "date-time"
+        location:
+          type: "string"
+          example: "Stockholm Distribution Centre"
+        description:
+          type: "string"
+          example: "Parcel arrived at sorting facility"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: "apiKey"
+      in: "header"
+      name: "X-Gravitee-Api-Key"
+
+security:
+  - ApiKeyAuth: []
