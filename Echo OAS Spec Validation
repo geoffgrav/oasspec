@@ -3,13 +3,11 @@ info:
   title: "OAS Spec Validation"
   description: "OpenAPI Specification for the Gravitee Echo API - used to demonstrate OAS validation and CI/CD promotion workflows"
   version: "1.0.0"
-
 servers:
   - url: "https://api.gravitee.io"
     description: "Gravitee Public Echo API"
-
 paths:
-  /echo:
+  /:
     get:
       summary: "Echo request details"
       description: "Returns all headers, query parameters and body size from the incoming request. Useful for validating gateway behaviour."
@@ -29,7 +27,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EchoResponse"
-
     post:
       summary: "Echo request with body"
       description: "Returns headers, query params and body size for a POST request"
@@ -47,7 +44,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EchoResponse"
-
 components:
   schemas:
     EchoResponse:
